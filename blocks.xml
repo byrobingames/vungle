@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<palette>
+    
+    <block tag="initVungle" spec="Initialize Vungle ads with 'appID': %0 [c:vungle]" code="Vungle.init(~);" type="action" color="charcoal" returns="void">
+        <fields>
+            <text order="0"></text>
+        </fields>
+    </block>
+    
+    <block tag="showVideoVungle" spec="Show Vungle %0 [c:vungle]" code="Vungle.show~();" type="action" color="charcoal" returns="void">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="Video" code="Video"></c>
+                    <c text="Rewarded Video" code="Rewarded"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    <!--<block tag="showRewardedVideoVungle" spec="Show Vungle Rewarded Video [c:vungle]" code="Vungle.showRewarded();" type="action" color="charcoal" returns="void">
+        <fields>
+        </fields>
+    </block>-->
+    
+    <block tag="getVideoAdInfoVungle" spec="Vungle Video Ad %0 [c:vungle]" code="Vungle.~()" type="normal" color="charcoal" returns="boolean">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="is available " code="adIsAvailable"></c>
+                    <c text="is not available" code="adIsNotAvailable"></c>
+                    <c text="will show" code="videoAdWillShow"></c>
+                    <c text="is closed" code="videoAdClosed"></c>
+                    <c text="is clicked" code="anAdisClicked"></c>
+                    <c text="(iOS Only)has download Advertising App" code="hasDownloadedApp"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    <block tag="getRewardedAdInfoVungle" spec="Vungle Rewarded Video Ad %0 [c:vungle]" code="Vungle.~()" type="normal" color="charcoal" returns="boolean">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="is available " code="adIsAvailable"></c>
+                    <c text="is not available" code="adIsNotAvailable"></c>
+                    <c text="will show" code="rewardedAdWillShow"></c>
+                    <c text="is closed" code="rewardedAdClosed"></c>
+                    <c text="is clicked" code="anAdisClicked"></c>
+                    <c text="(iOS Only)has download Advertising App" code="hasDownloadedApp"></c>
+                    <c text="is fully watched" code="rewardedAdFullyWatched"></c>
+                    <c text="is not fully watched" code="rewardedAdNotFullyWatched"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    
+</palette>
