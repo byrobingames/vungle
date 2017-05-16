@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <palette>
     
-    <block tag="initVungle" spec="Initialize Vungle ads with 'appID': %0 [c:vungle]" code="Vungle.init(~);" type="action" color="charcoal" returns="void">
+    <block tag="initVungle" spec="Initialize Vungle ads [c:vungle]" code="Vungle.init();" type="action" color="charcoal" returns="void">
         <fields>
-            <text order="0"></text>
         </fields>
     </block>
     

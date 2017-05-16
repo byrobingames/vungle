@@ -12,6 +12,8 @@ import openfl.Lib;
 import openfl.utils.JNI;
 #end
 
+import scripts.ByRobinAssets;
+
 class Vungle {
 	
 	private static var initialized:Bool=false;
@@ -40,8 +42,14 @@ class Vungle {
 
 	////////////////////////////////////////////////////////////////////////////
 	
-	public static function init(appId:String){
-	
+	public static function init(){
+		
+		#if ios
+		var appId:String = ByRobinAssets.VUIosAppID;
+		#elseif android
+		var appId:String = ByRobinAssets.VUAndroidAppID;
+		#end
+		
 		#if ios
 		if(initialized) return;
 		initialized = true;
