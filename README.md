@@ -29,11 +29,11 @@ If you don’t have an account, create one on [http://www.vungle.com](http://www
 
 ### Blocks
 
-Initialize Vungle
-Show Vungle Video
-Show Vungle Rewarded Video
-Callback for Video
-Callback for Rewarded Video
+- Initialize Vungle
+- Show Vungle Video
+- Show Vungle Rewarded Video
+- Callback for Video
+- Callback for Rewarded Video
 
 ## Version History
 
