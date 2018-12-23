@@ -34,22 +34,27 @@ Fill in your “AppID” in the Toolset Manager<br/>
 ### Blocks
 
 **Initialize Vungle**<br/>
-![vungleinitialize](https://byrobingames.github.io/img/vungle/vungleinitialize.png)
+![vungleinitialize](https://byrobingames.github.io/img/vungle/vungleinitialize.png)<br/>
+Use this block to initialize Vungle. Use this block once per user
+session (from the moment the user starts to play until the user quits the game). For example in a loading scene.
 
 <hr/>
 
 **Show Vungle Video and Rewarded Video**<br/>
-![vungleshowads](https://byrobingames.github.io/img/vungle/vungleshowads.png)
+![vungleshowads](https://byrobingames.github.io/img/vungle/vungleshowads.png)<br/>
+Use this block to Show Video of Rewarded Video ads.
 
 <hr/>
 
 **Callback for Video**<br/>
-![vunglevideocallback](https://byrobingames.github.io/img/vungle/vunglevideocallback.png)
+![vunglevideocallback](https://byrobingames.github.io/img/vungle/vunglevideocallback.png)<br/>
+Use this block to get Video callbacks.
 
 <hr/>
 
 **Callback for Rewarded Video**<br/>
-![vunglerewardedcallback](https://byrobingames.github.io/img/vungle/vunglerewardedcallback.png)
+![vunglerewardedcallback](https://byrobingames.github.io/img/vungle/vunglerewardedcallback.png)<br/>
+Use this block to get Rewarded Video callbacks.
 
 ## Version History
 
