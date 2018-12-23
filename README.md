@@ -18,22 +18,38 @@ This Extension Required the Toolset Extension Manager [https://byrobingames.gith
 ## How to Install
 
 To install this Engine Extension, go to the toolset (byRobin Extension Mananger) in the Extension menu of your game inside Stencyl.<br/>
-Select the Engine Extension from the left menu and click on "Download"
+![toolsetextensionlocation](https://byrobingames.github.io/img/toolset/toolsetextensionlocation.png)<br/>
+Select the Extension from the menu and click on "Download"
 
-If you not have byRobin Extension Mananger installed, install this first.
+If you not have byRobin Extension Mananger installed, install this first.<br/>
 Go to: [https://byrobingames.github.io](https://byrobingames.github.io)
 
 ## Documentation and Block Examples
 
 If you don’t have an account, create one on [http://www.vungle.com](http://www.vungle.com) and get your “AppID”.
 
+Fill in your “AppID” in the Toolset Manager<br/>
+![vungleappid](https://byrobingames.github.io/img/vungle/vungleappid.png)<br/>
+
 ### Blocks
 
-- Initialize Vungle
-- Show Vungle Video
-- Show Vungle Rewarded Video
-- Callback for Video
-- Callback for Rewarded Video
+**Initialize Vungle**<br/>
+![vungleinitialize](https://byrobingames.github.io/img/vungle/vungleinitialize.png)
+
+<hr/>
+
+**Show Vungle Video and Rewarded Video**<br/>
+![vungleshowads](https://byrobingames.github.io/img/vungle/vungleshowads.png)
+
+<hr/>
+
+**Callback for Video**<br/>
+![vunglevideocallback](https://byrobingames.github.io/img/vungle/vunglevideocallback.png)
+
+<hr/>
+
+**Callback for Rewarded Video**<br/>
+![vunglerewardedcallback](https://byrobingames.github.io/img/vungle/vunglerewardedcallback.png)
 
 ## Version History
 
@@ -52,6 +68,14 @@ Repository: [https://github.com/byrobingames/vungle](https://github.com/byrobing
 
 Need help with a pull request?<br/>
 [https://help.github.com/articles/creating-a-pull-request/](https://help.github.com/articles/creating-a-pull-request/)
+
+### ANY ISSUES?
+
+Add the issue on GitHub<br/>
+Repository: [https://github.com/byrobingames/vungle/issues](https://github.com/byrobingames/vungle/issues)
+
+Need help with creating a issue?<br/>
+[https://help.github.com/articles/creating-an-issue/](https://help.github.com/articles/creating-an-issue/)
 
 ## Donate
 
