@@ -19,8 +19,7 @@
         
 		<ndll name="vungle" />
         
-        <dependency path="templates/iphone/PROJ/Classes/VungleSDK.embeddedframework/VungleSDK.framework"/>-->
-        <template path="templates" />
+        <dependency path="frameworks/VungleSDK.framework"/>
         
 	</section>
 </project>

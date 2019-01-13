@@ -11,40 +11,35 @@
 
 using namespace vungle;
 
-extern "C" void sendVungleEvent(char* event);
+extern "C" void sendVungleEvent(char* event, const char* data);
 
 @interface VungleController : NSObject <VungleSDKDelegate>
 {
-    BOOL showedVideo;
-    BOOL showedRewarded;
-    BOOL rewardedClosed;
+    VungleSDK* vunlgeSDK;
+
 }
 
 - (id)initWithID:(NSString*)ID;
-- (void)showVideoAd;
-- (void)showRewardedAd;
-
-@property (nonatomic, assign) BOOL showedVideo;
-@property (nonatomic, assign) BOOL showedRewarded;
-@property (nonatomic, assign) BOOL rewardedClosed;
+- (void)loadAd:(NSString*)placementID;
+- (void)showInterstitialAd:(NSString*)placementID;
+- (void)showRewardedAd:(NSString*)placementID;
 
 @end
 
 @implementation VungleController
 
-@synthesize showedVideo;
-@synthesize showedRewarded;
-@synthesize rewardedClosed;
-
 - (id)initWithID:(NSString*)ID
 {
     self = [super init];
-    NSLog(@"Vungle Init");
+    NSLog(@"VungleEX Init");
     if(!self) return nil;
     
-    VungleSDK* sdk = [VungleSDK sharedSDK];
+    vunlgeSDK = [VungleSDK sharedSDK];
     // start vungle publisher library
-    [sdk startWithAppId:ID];
+    NSError *error;
+    if(![vunlgeSDK startWithAppId:ID error:&error]) {
+        NSLog(@" VungleEX Error while starting VungleSDK %@", [error localizedDescription]);
+    }
     
     //Set VungleSDK Delegate
     [[VungleSDK sharedSDK] setDelegate:self];
@@ -52,152 +47,116 @@ extern "C" void sendVungleEvent(char* event);
     return self;
 }
 
-- (void)showVideoAd
+- (void)loadAd:(NSString*)placementID
 {
-    showedVideo = YES;
-    showedRewarded = NO;
+    if(vunlgeSDK == nil) vunlgeSDK = [VungleSDK sharedSDK];
     
-    VungleSDK* sdk = [VungleSDK sharedSDK];
+    NSError *error;
+    [vunlgeSDK loadPlacementWithID:placementID error:&error];
     
-    if ([sdk isAdPlayable]) {
+}
 
-        NSError *error;
-        [sdk playAd:[[[UIApplication sharedApplication] keyWindow] rootViewController] error:&error];
-        if (error) {
-            NSLog(@"Error encountered playing ad: %@", error);
-        }
+- (void)showInterstitialAd:(NSString*)placementID
+{
+    if(vunlgeSDK == nil) vunlgeSDK = [VungleSDK sharedSDK];
+    
+
+    NSError *error;
+    [vunlgeSDK playAd:[[[UIApplication sharedApplication] keyWindow] rootViewController] options:nil placementID:placementID error:&error];
+    if (error) {
+        NSLog(@"VungleEX Error encountered playing ad: %@", error);
     }
 }
 
 
-- (void)showRewardedAd
+- (void)showRewardedAd:(NSString*)placementID
 {
-    showedRewarded = YES;
-    showedVideo = NO;
-    
     // Grab instance of Vungle SDK
-    VungleSDK* sdk = [VungleSDK sharedSDK];
+    if(vunlgeSDK == nil) vunlgeSDK = [VungleSDK sharedSDK];
     
     // Dict to set custom ad options
-    NSDictionary* options = @{VunglePlayAdOptionKeyIncentivized: @YES,
-                              VunglePlayAdOptionKeyIncentivizedAlertBodyText : @"If the video isn't completed you won't get your reward! Are you sure you want to close early?",
+    NSDictionary* options = @{VunglePlayAdOptionKeyIncentivizedAlertBodyText : @"If the video isn't completed you won't get your reward! Are you sure you want to close early?",
                               VunglePlayAdOptionKeyIncentivizedAlertCloseButtonText : @"Close",
                               VunglePlayAdOptionKeyIncentivizedAlertContinueButtonText : @"Keep Watching",
                               VunglePlayAdOptionKeyIncentivizedAlertTitleText : @"Careful!"};
     
     // Pass in dict of options, play ad
     NSError *error;
-    [sdk playAd:[[[UIApplication sharedApplication] keyWindow] rootViewController] withOptions:options error:&error];
+    [vunlgeSDK playAd:[[[UIApplication sharedApplication] keyWindow] rootViewController] options:options placementID:placementID error:&error];
     if (error) {
-        NSLog(@"Error encountered playing ad: %@", error);
+        NSLog(@"VungleEX Error encountered playing ad: %@", error);
     }
 }
 
 #pragma mark - VungleSDK Delegate
 
-- (void)vungleSDKAdPlayableChanged:(BOOL)isAdPlayable {
+- (void)vungleSDKDidInitialize
+{
+    NSLog(@"VungleEX SDK did Initialized");
+}
+
+- (void)vungleSDKFailedToInitializeWithError:(NSError *)error
+{
+    NSLog(@"VungleEX SDK failed to Initialize with error %@", error);
+}
+
+- (void)vungleAdPlayabilityUpdate:(BOOL)isAdPlayable placementID:(NSString *)placementID error:(nullable NSError *)error {
+    
+    const char *_placementID = [placementID UTF8String];
+    
     if (isAdPlayable) {
         NSLog(@"An ad is available for playback");
-        sendVungleEvent("adsavailible");
+        sendVungleEvent("adsavailible",_placementID);
         
     } else {
-        NSLog(@"No ads currently available for playback");
-        sendVungleEvent("noadsavailible");
+        NSLog(@"VungleEX No ads currently available for playback error: %@", error);
+        sendVungleEvent("noadsavailible",_placementID);
     }
 }
 
-- (void)vungleSDKwillShowAd {
-    NSLog(@"An ad is about to be played!");
+- (void)vungleWillShowAdForPlacementID:(NSString *)placementID {
+    NSLog(@"VungleEX An ad is about to be played!");
     //Use this delegate method to pause animations, sound, etc.
-    
-    if (showedVideo) {
-        sendVungleEvent("videowillshow");
-    }else if (showedRewarded){
-        sendVungleEvent("rewardedwillshow");
-    }
+    const char *_placementID = [placementID UTF8String];
+    sendVungleEvent("adwillshow",_placementID);
 }
 
-- (void) vungleSDKwillCloseAdWithViewInfo:(NSDictionary *)viewInfo willPresentProductSheet:(BOOL)willPresentProductSheet {
-    if (willPresentProductSheet) {
-        //In this case we don't want to resume animations and sound, the user hasn't returned to the app yet
-        NSLog(@"The ad presented was tapped and the user is now being shown the App Product Sheet");
-        sendVungleEvent("clicked");
+- (void)vungleWillCloseAdWithViewInfo:(VungleViewInfo *)info placementID:(NSString *)placementID {
+    
+    const char *_placementID = [placementID UTF8String];
+    
+    if([info completedView]){
+        NSLog(@"VungleEX Ad is fully watched");
+        sendVungleEvent("adfullywatched",_placementID);
         
-        NSLog(@"ViewInfo Dictionary:");
-        for(NSString * key in [viewInfo allKeys]) {
-            NSLog(@"%@ : %@", key, [[viewInfo objectForKey:key] description]);
-            
-            if (showedRewarded) {
-                if ([key isEqualToString:@"completedView"]) {
-                    if ([[[viewInfo objectForKey:key] description] isEqualToString:@"1"]) {
-                        NSLog(@"Ad is fully watched");
-                        showedRewarded = NO;
-                        sendVungleEvent("rewardedwatched");
-                        rewardedClosed = YES;
-                    }else{
-                        NSLog(@"Ad is not fully watched");
-                        showedRewarded = NO;
-                        sendVungleEvent("rewardednotwatched");
-                        rewardedClosed = YES;
-                    }
-                }
-            }else if (showedVideo){
-                showedVideo = NO;
-                sendVungleEvent("videoclosed");
-            }
-            
-            if (rewardedClosed) {
-                NSLog(@"Rewarded closed");
-                rewardedClosed = NO;
-                sendVungleEvent("rewardedclosed");
-            }
-        }
-    } else {
-        //In this case the user has declined to download the advertised application and is now returning fully to the main app
-        //Animations / Sound / Gameplay can be resumed now
-        NSLog(@"The ad presented was not tapped - the user has returned to the app");
-        NSLog(@"ViewInfo Dictionary:");
-        for(NSString * key in [viewInfo allKeys]) {
-            NSLog(@"%@ : %@", key, [[viewInfo objectForKey:key] description]);
-            
-            if (showedRewarded) {
-                if ([key isEqualToString:@"completedView"]) {
-                    if ([[[viewInfo objectForKey:key] description] isEqualToString:@"1"]) {
-                        NSLog(@"Ad is fully watched");
-                        showedRewarded = NO;
-                        sendVungleEvent("rewardedwatched");
-                        rewardedClosed = YES;
-                    }else{
-                        NSLog(@"Ad is not fully watched");
-                        showedRewarded = NO;
-                        sendVungleEvent("rewardednotwatched");
-                        rewardedClosed = YES;
-                    }
-                }
-            }else if (showedVideo){
-                showedVideo = NO;
-                sendVungleEvent("videoclosed");
-            }
-            
-            if (rewardedClosed) {
-                NSLog(@"Rewarded closed");
-                rewardedClosed = NO;
-                sendVungleEvent("rewardedclosed");
-            }
-        }
+    }else{
+        NSLog(@"VungleEX Ad is not fully watched");
+        sendVungleEvent("adnotfullywatched",_placementID);
+    }
+    
+    if (info) {
+        NSLog(@"VungleEX 1 Info about ad viewed: %@", info);
     }
 }
 
-- (void)vungleSDKwillCloseProductSheet:(id)productSheet {
-    NSLog(@"The user has downloaded an advertised application and is now returning to the main app");
-    //This method can be used to resume animations, sound, etc. if a user was presented a product sheet earlier
-    sendVungleEvent("hasdownloaded");
+- (void)vungleDidCloseAdWithViewInfo:(VungleViewInfo *)info placementID:(NSString *)placementID{
     
-    if (showedVideo) {
-        sendVungleEvent("videoclosed");
-    }else if (showedRewarded){
-        sendVungleEvent("rewardedclosed");
+    const char *_placementID = [placementID UTF8String];
+    
+    if([info didDownload]){
+        NSLog(@"VungleEX The user has downloaded an advertised application and is now returning to the main app");
+        //This method can be used to resume animations, sound, etc. if a user was presented a product sheet earlier
+        sendVungleEvent("hasdownloaded",_placementID);
+        sendVungleEvent("adclicked",_placementID);
     }
+    
+    sendVungleEvent("adclosed",_placementID);
+    
+    
+    if (info) {
+        NSLog(@"VungleEX 2 Info about ad viewed: %@", info);
+    }
+    
 }
 
 
@@ -216,19 +175,58 @@ namespace vungle {
         
         NSString *appID = [NSString stringWithUTF8String:__appID];
 
-        // VIDEO
         [vungleController initWithID:appID];
     }
     
-
-    void showVideo()
+    void loadVungleAd(const char *__placementID)
     {
-        if(vungleController!=NULL) [vungleController showVideoAd];
+        NSString *placementID = [NSString stringWithUTF8String:__placementID];
+        
+        if(vungleController!=NULL) [vungleController loadAd:placementID];
     }
     
-    void showRewarded()
+    void showInterstitial(const char *__placementID)
     {
-        if(vungleController!=NULL) [vungleController showRewardedAd];
+        NSString *placementID = [NSString stringWithUTF8String:__placementID];
+        
+        if(vungleController!=NULL) [vungleController showInterstitialAd:placementID];
+    }
+    
+    void showRewarded(const char *__placementID)
+    {
+        NSString *placementID = [NSString stringWithUTF8String:__placementID];
+        
+        if(vungleController!=NULL) [vungleController showRewardedAd:placementID];
+    }
+    
+    void setVungleConsent(bool isGranted)
+    {
+        if(isGranted){
+            [[VungleSDK sharedSDK] updateConsentStatus:VungleConsentAccepted consentMessageVersion:@"Vungle 6.3.2"];
+        }else {
+            [[VungleSDK sharedSDK] updateConsentStatus:VungleConsentDenied consentMessageVersion:@"Vungle 6.3.2"];
+        }
+    
+        NSLog(@"VungleEX SetConsent:  %@", @(isGranted));
+    }
+    
+    bool getVungleConsent()
+    {
+        switch ([[VungleSDK sharedSDK] getCurrentConsentStatus])
+        {
+            case VungleConsentAccepted:
+                return true;
+                break;
+            case VungleConsentDenied:
+                return false;
+                break;
+            default:
+                return false;
+                break;
+                
+        }
+        
+        //return [[VungleSDK sharedSDK] getCurrentConsentStatus];
     }
     
     

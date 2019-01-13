@@ -15,6 +15,13 @@ This Extension Required the Toolset Extension Manager [https://byrobingames.gith
   * Video Support.
   * Rewarded Video Support.
   
+### GDPR Compliance
+
+As of May 25th, the General Data Protection Regulation (GDPR) will be enforced in the European Union. To comply with GDPR, developers have two options.
+
+**Option 1 (recommended):** Publisher controls the GDPR consent process at the user level, then communicates the user’s choice to Vungle. To do this, developers can collect the user’s consent using their own mechanism, and then use Vungle APIs to update or query the user’s consent status. Refer to the GDPR Recommended Implementation Instruction section for details.
+**Option 2:** Allow Vungle to handle the requirements. Vungle will display a consent dialog before playing an ad for a European user, and will remember the user’s consent or rejection for subsequent ads.
+  
 ## How to Install
 
 To install this Engine Extension, go to the toolset (byRobin Extension Mananger) in the Extension menu of your game inside Stencyl.<br/>
@@ -26,10 +33,12 @@ Go to: [https://byrobingames.github.io](https://byrobingames.github.io)
 
 ## Documentation and Block Examples
 
-If you don’t have an account, create one on [http://www.vungle.com](http://www.vungle.com) and get your “AppID”.
+If you don’t have an account, create one on [https://publisher.vungle.com](https://publisher.vungle.com) and get your “AppID” and "Placements Reference Id"
 
 Fill in your “AppID” in the Toolset Manager<br/>
 ![vungleappid](https://byrobingames.github.io/img/vungle/vungleappid.png)<br/>
+
+<span style="color:red;">!!ON ANDROID YOU NEED TO ENABLE ADMOB ADS INSIDE STENCYL!!</span>
 
 ### Blocks
 
@@ -40,21 +49,31 @@ session (from the moment the user starts to play until the user quits the game).
 
 <hr/>
 
-**Show Vungle Video and Rewarded Video**<br/>
+**Load Vungle ad with placement Id**<br/>
+![vungleloadads](https://byrobingames.github.io/img/vungle/vungleloadads.png)<br/>
+Use this block to load ads where auto-cached in dashboard is disabled .
+
+**Show Vungle interstitial of Rewarded ad with placement Id**<br/>
 ![vungleshowads](https://byrobingames.github.io/img/vungle/vungleshowads.png)<br/>
-Use this block to Show Video of Rewarded Video ads.
+Use this block to show a Interstitial or Rewarded. When showing rewarded ad, the user gets a popup when he close the ad early.
 
 <hr/>
 
-**Callback for Video**<br/>
-![vunglevideocallback](https://byrobingames.github.io/img/vungle/vunglevideocallback.png)<br/>
-Use this block to get Video callbacks.
+**Callback for Ads**<br/>
+![vunglecallbacks](https://byrobingames.github.io/img/vungle/vunglecallbacks.png)<br/>
+Use this block to get the callbacks of an Ad with placementId.
 
 <hr/>
 
-**Callback for Rewarded Video**<br/>
-![vunglerewardedcallback](https://byrobingames.github.io/img/vungle/vunglerewardedcallback.png)<br/>
-Use this block to get Rewarded Video callbacks.
+**Set Consent** (Europe only)<br/>
+![vunglesetconsent](https://byrobingames.github.io/img/vungle/vunglesetconsent.png)<br/>
+Set the Consent of user programmatically.
+
+<hr/>
+
+**Get Consent** (Europe only)<br/>
+![vunglegetconsent](https://byrobingames.github.io/img/vungle/vunglegetconsent.png)<br/>
+Get the Consent of user programmatically returns true when OPTED_IN is set and returns false when OPTED_OUT is set. If Consent is not set it will return false.
 
 ## Version History
 
@@ -63,6 +82,7 @@ Use this block to get Rewarded Video callbacks.
 - 2016-11-18 (0.0.3)  Updated to use with Heyzap Extension 2.7
 - 2017-03-19 (0.0.4)  Updated to use with Heyzap Extension 2.9, Update iOS SDK to 4.0.9, Added Android Gradle support.
 - 2017-05-16(0.0.5)  Tested for Stencyl 3.5, Required byRobin Toolset Extension Manager
+- 2019-01-13(0.0.6)  Update iOS SDK to 6.3.2 and Android SDK to 6.3.24; Added set/get users consent; Added load block; Android JNI import fix; Added placement support; byRobinextensionmanager 0.2.3 required
 
 ## Submitting a Pull Request
 

@@ -5,9 +5,12 @@
 namespace vungle {
 	
 	
-	void init(const char *appID);
-	void showVideo();
-    void showRewarded();
+	void init(const char *__appID);
+    void loadVungleAd(const char *__placementID);
+    void showInterstitial(const char *__placementID);
+    void showRewarded(const char *__placementID);
+    void setVungleConsent(bool isGranted);
+    bool getVungleConsent();
 }
 
 

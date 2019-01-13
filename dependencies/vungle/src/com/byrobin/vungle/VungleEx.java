@@ -1,16 +1,20 @@
 /*
  *
  * Created by Robin Schaafsma
- * www.byrobingames.com
+ * https://byrobingames.github.io
  * copyright
  */
 
 package com.byrobin.vungle;
 
-import com.vungle.publisher.Orientation;
-import com.vungle.publisher.VunglePub;
-import com.vungle.publisher.EventListener;
-import com.vungle.publisher.AdConfig;
+import com.vungle.warren.Vungle;
+import com.vungle.warren.AdConfig;
+import com.vungle.warren.InitCallback;
+import com.vungle.warren.LoadAdCallback;
+import com.vungle.warren.PlayAdCallback;
+import com.vungle.warren.VungleNativeAd;
+import com.vungle.warren.Vungle.Consent;
+import com.vungle.warren.error.VungleException;
 
 import android.app.Activity;
 import android.content.Context;
@@ -32,172 +36,223 @@ public class VungleEx extends Extension {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////
     private static String appId=null;
-    private static boolean showedVideo=false;
-    private static boolean showedRewarded=false;
-    private static boolean rewardedClosed=false;
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	static public void init(HaxeObject cb, final String appId){
-        
-        vungleCallback = cb;
-        VungleEx.appId=appId;
-		
-		Extension.mainActivity.runOnUiThread(new Runnable() {
-            public void run() 
-			{
-                
-				Log.d("VungleEx","Init Vungle");
-                
-                VunglePub.getInstance().init(Extension.mainActivity, appId);
-                
-                VunglePub.getInstance().setEventListeners(instance.vungleDefaultListener);
-			}
-		});	
-	}
+    static public void init(HaxeObject cb, final String appId){
 
-	static public void showVideo()
+    vungleCallback = cb;
+    VungleEx.appId=appId;
+
+            Extension.mainActivity.runOnUiThread(new Runnable() {
+        public void run()
+                    {
+
+                        Log.d("VungleEx","Init Vungle");
+                        Vungle.init(appId, mainActivity.getApplicationContext(), new InitCallback() {
+                            @Override
+                            public void onSuccess() {
+                                // Initialization has succeeded and SDK is ready to load an ad or play one if there
+                                // is one pre-cached already
+                            }
+
+                            @Override
+                            public void onError(Throwable throwable) {
+                                // Initialization error occurred - throwable.getLocalizedMessage() contains error message
+                            }
+
+                            @Override
+                            public void onAutoCacheAdAvailable(String placementId) {
+                                // Callback to notify when an ad becomes available for the auto-cached placement
+                                // NOTE: This callback works only for the auto-cached placement. Otherwise, please use
+                                // LoadAdCallback with loadAd API for loading placements.
+                                vungleCallback.call("onAdIsAvailable", new Object[] {placementId});
+                            }
+                        });
+
+
+                    }
+            });
+    }
+
+    static public void loadAd(final String placementId)
     {
-        showedVideo = true;
-        showedRewarded = false;
-        
-        Log.d("VungleEx","Show Video Begin");
-		if(appId=="") return;
-		Extension.mainActivity.runOnUiThread(new Runnable() {
-			public void run()
-            {
-                if(VunglePub.getInstance().isAdPlayable()){
-                    
-                    final AdConfig overrideConfig = new AdConfig();
-                    
-                    overrideConfig.setBackButtonImmediatelyEnabled(true);
-                    
-                    VunglePub.getInstance().playAd(overrideConfig);
-                }
-            }
-		});
-		Log.d("VungleEx","Show Video End ");
-	}
-    
-    static public void showRewarded()
+        Log.d("VungleEx","Load ad Begin");
+            if(appId=="") return;
+            Extension.mainActivity.runOnUiThread(new Runnable() {
+                    public void run()
+                    {
+
+                        if (Vungle.isInitialized()) {
+                            Vungle.loadAd(placementId, new LoadAdCallback() {
+                                @Override
+                                public void onAdLoad(String placementReferenceId) {
+
+                                    vungleCallback.call("onAdIsAvailable", new Object[] {placementReferenceId});
+                                }
+
+                                @Override
+                                public void onError(String placementReferenceId, Throwable throwable) {
+                                    // Load ad error occurred - throwable.getLocalizedMessage() contains error message
+                                    vungleCallback.call("onAdIsNotAvailable", new Object[] {placementReferenceId});
+                                }
+                            });
+                        }
+                    }
+            });
+    }
+
+
+    static public void showInterstitial(final String placementId)
     {
-        showedVideo = false;
-        showedRewarded = true;
-        
+
+        Log.d("VungleEx","Show Insterstitial Begin");
+            if(appId=="") return;
+            Extension.mainActivity.runOnUiThread(new Runnable() {
+                    public void run()
+                    {
+                        Vungle.playAd(placementId, null, new PlayAdCallback() {
+                            @Override
+                            public void onAdStart(String placementReferenceId) {
+
+                                vungleCallback.call("onAdWillShow", new Object[] {placementReferenceId});
+                            }
+
+                            @Override
+                            public void onAdEnd(String placementReferenceId, boolean completed, boolean isCTAClicked) {
+
+                                if(completed){
+                                    vungleCallback.call("onAdFullyWatched", new Object[] {placementReferenceId});
+                                }else{
+                                    vungleCallback.call("onAdNotFullyWatched", new Object[] {placementReferenceId});
+                                }
+                                if(isCTAClicked){
+                                    vungleCallback.call("onAdIsClicked", new Object[] {placementReferenceId});
+                                }
+
+                                vungleCallback.call("onAdClosed", new Object[] {placementReferenceId});
+                            }
+
+                            @Override
+                            public void onError(String placementReferenceId, Throwable throwable) {
+                                // Play ad error occurred - throwable.getLocalizedMessage() contains error message
+                            }
+                        });
+
+                    }
+            });
+    }
+
+    static public void showRewarded(final String placementId)
+    {
         Log.d("VungleEx","Show Rewarded Begin");
         if(appId=="") return;
         Extension.mainActivity.runOnUiThread(new Runnable() {
             public void run()
             {
-                if(VunglePub.getInstance().isAdPlayable()){
-                    
-                    
-                    final AdConfig overrideConfig = new AdConfig();
-                    
-                    // set incentivized option on
-                    overrideConfig.setBackButtonImmediatelyEnabled(true);
-                    //overrideConfig.setImmersiveMode(true);
-                    overrideConfig.setIncentivized(true);
-                    overrideConfig.setIncentivizedCancelDialogTitle("Careful!");
-                    overrideConfig.setIncentivizedCancelDialogBodyText("If the video isn't completed you won't get your reward! Are you sure you want to close early?");
-                    overrideConfig.setIncentivizedCancelDialogCloseButtonText("Close");
-                    overrideConfig.setIncentivizedCancelDialogKeepWatchingButtonText("Keep Watching");
-                    
-                   
-                    VunglePub.getInstance().playAd(overrideConfig);
-                }
+
+                final String title = "Careful!";
+                final String body = "If the video isn't completed you won't get your reward! Are you sure you want to close early?";
+                final String keepWatching = "Keep Watching";
+                final String close = "Close";
+
+                Vungle.setIncentivizedFields("",title,body,keepWatching,close);
+
+                Vungle.playAd(placementId, null, new PlayAdCallback() {
+                    @Override
+                    public void onAdStart(String placementReferenceId) {
+
+                        vungleCallback.call("onAdWillShow", new Object[] {placementReferenceId});
+                    }
+
+                    @Override
+                    public void onAdEnd(String placementReferenceId, boolean completed, boolean isCTAClicked) {
+
+                        if(completed){
+                            vungleCallback.call("onAdFullyWatched", new Object[] {placementReferenceId});
+                        }else{
+                            vungleCallback.call("onAdNotFullyWatched", new Object[] {placementReferenceId});
+                        }
+                        if(isCTAClicked){
+                            vungleCallback.call("onAdIsClicked", new Object[] {placementReferenceId});
+                        }
+
+                        vungleCallback.call("onAdClosed", new Object[] {placementReferenceId});
+                    }
+
+                    @Override
+                    public void onError(String placementReferenceId, Throwable throwable) {
+                        // Play ad error occurred - throwable.getLocalizedMessage() contains error message
+                    }
+                });
+
             }
-        });
-        Log.d("VungleEx","Show Rewarded End ");
-    }
-    
-    //////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    private final EventListener vungleDefaultListener = new EventListener() {
-    
-    @Deprecated
-    @Override
-    public void onVideoView(boolean isCompletedView, int watchedMillis, int videoDurationMillis) {
-    // Called each time a video completes.  isCompletedView is true if >= 80% of the video was watched.
-
-    }
-    
-    @Override
-    public void onAdStart() {
-    // Called before playing an ad.
-        if(showedVideo){
-            vungleCallback.call("onVideoWillShow", new Object[] {});
-        }else if(showedRewarded){
-            vungleCallback.call("onRewardedWillShow", new Object[] {});
-        }
+         });
     }
 
-    @Override
-    public void onAdUnavailable(String reason) {
-    // Called when VunglePub.playAd() was called but no ad is available to show to the user.
-        vungleCallback.call("onAdIsNotAvailable", new Object[] {});
-    }
-    
-    @Override
-    public void onAdEnd(boolean wasSuccessfulView, boolean wasCallToActionClicked) {
-    // Called when the user leaves the ad and control is returned to your application.
-        if(showedVideo){
-            showedVideo = false;
-            vungleCallback.call("onVideoClosed", new Object[] {});
-        }else if(showedRewarded){
-            if(wasSuccessfulView){
-                showedRewarded = false;
-                vungleCallback.call("onRewardedFullyWatched", new Object[] {});
-                rewardedClosed = true;
-                }else{
-                    showedRewarded = false;
-                    vungleCallback.call("onRewardedNotFullyWatched", new Object[] {});
-                    rewardedClosed = true;
-                }
-                if(rewardedClosed){
-                rewardedClosed = false;
-                vungleCallback.call("onRewardedClosed", new Object[] {});
-                }
-        }
+    //GDPR Settings
+    static public void setUsersConsent(final boolean isGranted){
 
-        if(wasCallToActionClicked){
-            vungleCallback.call("onAdIsClicked", new Object[] {});
-        }
-    }
+        // Usage example of GDPR API
+        //                // To set the user's consent status to opted in:
+        //                Vungle.updateConsentStatus(Vungle.Consent.OPTED_IN, “1.0.0”);
+        //
+        //                // To set the user's consent status to opted out:
+        //                Vungle.updateConsentStatus(Vungle.Consent.OPTED_OUT, “1.0.0”);
 
-    @Override
-    public void onAdPlayableChanged(boolean isAdPlayable) {
-    // Called when ad playability changes.
-        if (isAdPlayable) {
-            Log.d("VungleEx","An ad is available for playback ");
-    
-            vungleCallback.call("onAdIsAvailable", new Object[] {});
+        if(isGranted){
+            Vungle.updateConsentStatus(Vungle.Consent.OPTED_IN, "Vungle 6.3.24");
         }else {
-            Log.d("VungleEx","An ad is not available for playback ");
+            Vungle.updateConsentStatus(Vungle.Consent.OPTED_OUT, "Vungle 6.3.24");
+        }
 
-            vungleCallback.call("onAdIsNotAvailable", new Object[] {});
-            }
+
+        Log.d("VungleEx","VungleEx Consent is set to: " + isGranted);
     }
-};
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////
+    public static boolean getUsersConsent(){
+
+        // To find out what the user's current consent status is:
+        //                // This will return null if the GDPR Consent status has not been set
+        //                // Otherwise, it will return Vungle.Consent.OPTED_IN or Vungle.Consent.OPTED_OUT
+        //                Vungle.Consent currentStatus = Vungle.getConsentStatus();
+
+        Boolean isGranted = false;
+
+        Vungle.Consent currentStatus = Vungle.getConsentStatus();
+
+        if(currentStatus != null){
+
+            switch(currentStatus){
+
+                case OPTED_IN:
+                    isGranted = true;
+                    break;
+                case OPTED_OUT:
+                    isGranted = false;
+                    break;
+                default:
+                    isGranted = false;
+                    break;
+            }
+
+        }else{
+            isGranted = false;
+        }
+
+        Log.d("VungleEx","VungleEx get userConsent is: " + currentStatus);
+
+        return isGranted;
+    }
+
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    
     public void onCreate ( Bundle savedInstanceState )
     {
+        super.onCreate(savedInstanceState);
         VungleEx.instance = this;
-    }
-    public void onPause() {
-        VunglePub.getInstance().onPause();
-    }
-
-    public void onResume() {
-        VunglePub.getInstance().onResume();
-    }
-
-    public void onDestroy() {
-        // onDestroy(), remove eventlisteners.
-        VunglePub.getInstance().removeEventListeners(vungleDefaultListener);
     }
     
 }

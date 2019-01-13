@@ -1,58 +1,109 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <palette>
-    
-    <block tag="initVungle" spec="Initialize Vungle ads [c:vungle]" code="Vungle.init();" type="action" color="charcoal" returns="void">
-        <fields>
-        </fields>
-    </block>
-    
-    <block tag="showVideoVungle" spec="Show Vungle %0 [c:vungle]" code="Vungle.show~();" type="action" color="charcoal" returns="void">
-        <fields>
-            <dropdown order="0">
-                <choices>
-                    <c text="Video" code="Video"></c>
-                    <c text="Rewarded Video" code="Rewarded"></c>
-                </choices>
-            </dropdown>
-        </fields>
-    </block>
-    
-    <!--<block tag="showRewardedVideoVungle" spec="Show Vungle Rewarded Video [c:vungle]" code="Vungle.showRewarded();" type="action" color="charcoal" returns="void">
-        <fields>
-        </fields>
-    </block>-->
-    
-    <block tag="getVideoAdInfoVungle" spec="Vungle Video Ad %0 [c:vungle]" code="Vungle.~()" type="normal" color="charcoal" returns="boolean">
-        <fields>
-            <dropdown order="0">
-                <choices>
-                    <c text="is available " code="adIsAvailable"></c>
-                    <c text="is not available" code="adIsNotAvailable"></c>
-                    <c text="will show" code="videoAdWillShow"></c>
-                    <c text="is closed" code="videoAdClosed"></c>
-                    <c text="is clicked" code="anAdisClicked"></c>
-                    <c text="(iOS Only)has download Advertising App" code="hasDownloadedApp"></c>
-                </choices>
-            </dropdown>
-        </fields>
-    </block>
-    
-    <block tag="getRewardedAdInfoVungle" spec="Vungle Rewarded Video Ad %0 [c:vungle]" code="Vungle.~()" type="normal" color="charcoal" returns="boolean">
-        <fields>
-            <dropdown order="0">
-                <choices>
-                    <c text="is available " code="adIsAvailable"></c>
-                    <c text="is not available" code="adIsNotAvailable"></c>
-                    <c text="will show" code="rewardedAdWillShow"></c>
-                    <c text="is closed" code="rewardedAdClosed"></c>
-                    <c text="is clicked" code="anAdisClicked"></c>
-                    <c text="(iOS Only)has download Advertising App" code="hasDownloadedApp"></c>
-                    <c text="is fully watched" code="rewardedAdFullyWatched"></c>
-                    <c text="is not fully watched" code="rewardedAdNotFullyWatched"></c>
-                </choices>
-            </dropdown>
-        </fields>
-    </block>
-    
-    
+
+  <block tag="initVungle"
+         code="Vungle.init();"
+         spec="Initialize Vungle ads [c:vungle]"
+         type="action"
+         color="charcoal"
+         returns="void"
+         category="mobile"
+         help="Initialize Vunle SDK."
+         helpURL="https://byrobingames.github.io/vungle">
+    <fields>
+    </fields>
+  </block>
+
+  <block tag="loadVungleAds"
+         spec="Load Vungle Ad with placementId: %0 [c:vungle]"
+         code="Vungle.loadAd(~);"
+         type="action"
+         color="charcoal"
+         returns="void"
+         category="mobile"
+         help="Loads Vungle ads"
+         helpURL="https://byrobingames.github.io/vungle">
+    <fields>
+        <text order="0"></text>
+    </fields>
+  </block>
+
+  <block tag="showVideoVungle"
+         spec="Show Vungle %0 with placementId: %1 [c:vungle]"
+         code="Vungle.show~(~);"
+         type="action"
+         color="charcoal"
+         returns="void"
+         category="mobile"
+         help="Shows an ad with placementId"
+         helpURL="https://byrobingames.github.io/vungle">
+    <fields>
+        <dropdown order="0">
+            <choices>
+                <c text="Interstitial Ad" code="Interstitial"></c>
+                <c text="Rewarded Video" code="Rewarded"></c>
+            </choices>
+        </dropdown>
+        <text order="1"></text>
+    </fields>
+  </block>
+
+  <block tag="setConsentVungle"
+         spec="Vungle set consent to: %0 [c:vungle]"
+         code="Vungle.setConsent(~);"
+         type="action"
+         color="charcoal"
+         returns="void"
+         category="mobile"
+         help="Set users consent programmatically"
+         helpURL="https://byrobingames.github.io/vungle">
+    <fields>
+        <dropdown order="0">
+            <choices>
+                <c text="OPTED_IN" code="true"></c>
+                <c text="OPTED_OUT" code="false"></c>
+            </choices>
+        </dropdown>
+    </fields>
+  </block>
+
+  <block tag="getConsentVungle"
+         spec="Vungle get consented [c:vungle]"
+         code="Vungle.getConsent()"
+         type="normal"
+         color="charcoal"
+         returns="boolean"
+         category="mobile"
+         help="Returns true(OPTED_IN) when consent is set to OPTED_IN and returns false(OPTED_OUT) when consent is set to OPTED_OUT"
+         helpURL="https://byrobingames.github.io/vungle">
+    <fields>
+    </fields>
+  </block>
+
+  <block tag="getAdInfoVungle"
+         spec="Vungle Ad with placementId: %1 %0 [c:vungle]"
+         code="Vungle.~(~)"
+         type="normal"
+         color="charcoal"
+         returns="boolean"
+         category="mobile"
+         help="Returns true of false"
+         helpURL="https://byrobingames.github.io/vungle">
+    <fields>
+        <dropdown order="0">
+            <choices>
+                <c text="is available " code="adIsAvailable"></c>
+                <c text="is not available" code="adIsNotAvailable"></c>
+                <c text="will show" code="adWillShow"></c>
+                <c text="is closed" code="adClosed"></c>
+                <c text="is clicked" code="adisClicked"></c>
+                <c text="(iOS Only)has download Advertising App" code="hasDownloadedApp"></c>
+                <c text="is fully watched" code="adFullyWatched"></c>
+                <c text="is not fully watched" code="adNotFullyWatched"></c>
+            </choices>
+        </dropdown>
+        <text order="1"></text>
+    </fields>
+  </block>
+
 </palette>
